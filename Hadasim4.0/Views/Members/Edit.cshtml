@@ -1,0 +1,246 @@
+﻿@model Hadasim4._0.Models.Member
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Member Details</h4>
+        <hr />
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="City" class="control-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Street" class="control-label"></label>
+                <input asp-for="Street" class="form-control" />
+                <span asp-validation-for="Street" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HouseNumber" class="control-label"></label>
+                <input asp-for="HouseNumber" class="form-control" />
+                <span asp-validation-for="HouseNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BirthDate" class="control-label"></label>
+                <input asp-for="BirthDate" type="date" class="form-control" />
+                <span asp-validation-for="BirthDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MobilePhone" class="control-label"></label>
+                <input asp-for="MobilePhone" class="form-control" />
+                <span asp-validation-for="MobilePhone" class="text-danger"></span>
+            </div>
+            @if (Model.PositiveDate == null)
+            {
+                <div class="form-group">
+                    <label class="control-label">Did the member have COVID-19?</label>
+                    <select class="form-control" id="hadCovid19">
+                        <option value="false" selected>No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                    <span class="text-danger"></span>
+                </div>
+                <div id="covid19Dates" style="display:none;">
+                    <div class="form-group">
+                        <label asp-for="PositiveDate" class="control-label"></label>
+                        <input asp-for="PositiveDate" type="date" class="form-control" />
+                        <span asp-validation-for="PositiveDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="RecoveryDate" class="control-label"></label>
+                        <input asp-for="RecoveryDate" type="date" class="form-control" />
+                        <span asp-validation-for="RecoveryDate" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <label asp-for="PositiveDate" class="control-label"></label>
+                    <input asp-for="PositiveDate" type="date" class="form-control" />
+                    <span asp-validation-for="PositiveDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="RecoveryDate" class="control-label"></label>
+                    <input asp-for="RecoveryDate" type="date" class="form-control" />
+                    <span asp-validation-for="RecoveryDate" class="text-danger"></span>
+                </div>
+            }
+            
+            <div class="form-group mt-2">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+     <div class="col-md-6">
+        <h4>Vaccinations Details</h4>
+        <hr />
+        <p id="noVaccinationsMessage" style="display: none;">No vaccinations yet..</p>
+        <table class="table" id="vacTable">
+            <thead>
+                <tr>
+                    <th>Vaccination ID</th>
+                    <th>Producer</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="memberVaccinationDetails">
+                <!-- Vaccination details will be dynamically inserted here -->
+            </tbody>
+        </table>
+        <form>
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" id="addVaccinationBtn">Add a Vaccination</button>
+            </div>
+            <div id="vaccinationDetails" style="display: none;">
+                <h4>Add a Vaccination</h4>
+                <div class="form-group">
+                    <label for="vaccinationId">Vaccination:</label>
+                    <select id="vaccinationId" class="form-control">
+                        <!-- Populate options dynamically using JavaScript or Razor -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="vaccinationDate">Date:</label>
+                    <input type="date" id="vaccinationDate" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary" id="saveVaccinationBtn">Save Vaccination</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+         <script>
+        $(document).ready(function () {
+            refreshVaccinationsTable()
+            // Fetch member vaccinations and populate table
+            function refreshVaccinationsTable() {
+                var memberId = @Model?.MemberId;
+                $.ajax({
+                    type: "GET",
+                    url: "/Members/GetMemberVaccinations?memberId=" + memberId,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            // Clear the table body
+                            $("#memberVaccinationDetails").empty();
+
+                            $.each(data, function (index, item) {
+                                // Format the date
+                                var formattedDate = new Date(item.date).toLocaleDateString('en-GB');
+                                $("#memberVaccinationDetails").append("<tr><td>" + item.vaccinationId + "</td><td>" + item.producer + "</td><td>" + formattedDate + "</td></tr>");
+                            });
+                            $("#vacTable").show();
+                            $("#memberVaccinationDetails").show();
+                            $("#noVaccinationsMessage").hide();
+                        } else {
+                            // Hide the table if there are no vaccinations
+                            $("#vacTable").hide();
+                            $("#memberVaccinationDetails").hide();
+                            // Show the message
+                            $("#noVaccinationsMessage").show();
+                        }
+                    },
+                    error: function (response) {
+                        // Alert any error messages
+                        alert("Failed to fetch member vaccinations: " + response.responseText);
+                    }
+                });
+            }
+
+            $('#hadCovid19').change(function () {
+                if ($(this).val() === "true") {
+                    $('#covid19Dates').show();
+                } else {
+                    $('#covid19Dates').hide();
+                }
+            });
+
+            // Handler for "Add a vaccination" button click
+            $("#addVaccinationBtn").click(function () {
+                // Fetch vaccination data from the server
+                $.ajax({
+                    type: "GET",
+                    url: "/Vaccinations/GetVaccinations", 
+                    success: function (data) {
+                        // Clear previous options
+                        $("#vaccinationId").empty();
+
+                        // Populate options
+                        $.each(data, function (index, item) {
+                            $("#vaccinationId").append($('<option>', {
+                                value: item.id,
+                                text: item.id + " - " + item.producer
+                            }));
+                        });
+                    },
+                    error: function (response) {
+                        alert("Failed to fetch vaccinations: " + response.responseText);
+                    }
+                });
+                $("#vaccinationDetails").show();
+            });
+
+            // Handler for "Save Vaccination" button click
+            $("#saveVaccinationBtn").click(function () {
+                var memberId = $("#Id").val();
+                var vaccinationId = $("#vaccinationId").val();
+                var vaccinationDate = $("#vaccinationDate").val();
+
+                // Send AJAX request to add the vaccination
+                $.ajax({
+                    type: "POST",
+                    url: "/Members/AddVaccination",
+                    data: {
+                        memberId: memberId,
+                        vaccinationId: vaccinationId,
+                        vaccinationDate: vaccinationDate
+                    },
+                    success: function () {
+                        alert("Vaccination added successfully.");
+                        $("#vaccinationDetails").hide();
+                        // Refresh the vaccinations table
+                        refreshVaccinationsTable();
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            });   
+
+        });
+    </script>
+}
+
+            
