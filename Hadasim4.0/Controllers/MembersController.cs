@@ -165,14 +165,15 @@ namespace Hadasim4._0.Controllers
                 return Problem("Entity set 'Hadasim4_0Context.Member'  is null.");
             }
             var member = await _context.Member.FindAsync(id);
+            if (member == null)
+            {
+                return NotFound();
+            }
             try {
-                var memberVaccinationRelations = await _context.MemberVaccinationRelation.Where(mvr => mvr.MemberId == member.MemberId).ToListAsync();
-                foreach (var mvr in memberVaccinationRelations)
-                { 
-                    _context.MemberVaccinationRelation.Remove(mvr);
-                    await _context.SaveChangesAsync();
-                }
- 
+                //var memberVaccinationRelations = await _context.MemberVaccinationRelation.Where(mvr => mvr.MemberId == member.MemberId).ToListAsync();
+                //_context.MemberVaccinationRelation.RemoveRange(memberVaccinationRelations);
+                //await _context.SaveChangesAsync();
+                
                 _context.Member.Remove(member);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
