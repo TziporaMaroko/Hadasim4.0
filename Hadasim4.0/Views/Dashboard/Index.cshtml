@@ -1,0 +1,185 @@
+﻿@model List<Hadasim4._0.Models.Member>
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/alumuko/vanilla-datetimerange-picker@latest/dist/vanilla-datetimerange-picker.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+
+<style>
+    .morris-hover.morris-default-style {
+        border-radius: 10px;
+        padding: 6px;
+        color: #000;
+        background: rgba(255, 255, 255, 0.8);
+        border: solid 2px rgba(230, 230, 230, 0.8);
+        font-family: sans-serif;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    .morris-hover.morris-default-style {
+        border-radius: 4px;
+        padding: 10px 12px;
+        color: #000;
+        background: #63676b;
+        border: none;
+        color: #fff !important;
+        box-shadow: none;
+        font-size: 14px;
+    }
+
+    .morris-hover {
+        position: absolute;
+        z-index: 1000;
+    }
+
+    .morris-hover {
+        position: absolute;
+        z-index: 1;
+    }
+
+</style>
+
+<div class="row">
+    <div class="mb-10 ml-10">
+
+        <div class="card oh">
+            <div class="card-body">
+                <h4 class="card-title">Graph Overview</h4>
+                <input type="text" id="date-picker1" class="flatpickr" size="24" style="text-align:center" placeholder="Select Date Range..">
+                <div id="line-chart" style="height: 350px;"></div>
+            </div>
+            <div class="card-body bg-light">
+                <div class="row text-center m-b-20">
+                    <div class="col-md-4 m-t-20">
+                        <h2 class="m-b-0 font-light">@Model.Count</h2><span class="text-muted">Member's Count</span>
+                    </div>
+                    <div class="col-md-4 m-t-20">
+                        <h2 class="m-b-0 font-light">@Html.Raw(ViewBag.nonVaccinatedMembers)</h2><span class="text-muted">Non Vaccinated Members</span>
+                    </div>
+                    <div class="col-md-4 m-t-20">
+                        <h2 class="m-b-0 font-light">@Model.Count</h2><span class="text-muted">Member's Count</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+         
+            $.ajax({
+                url: `/Dashboard/GetDataForDateRange?startDate=${moment().subtract(30, 'days').format('YYYY-MM-DDTHH:mm:ss')}&endDate=${moment().format('YYYY-MM-DDTHH:mm:ss')}`,
+                type: 'GET',
+                success(data) {
+
+                    var config = {
+                        data: data,
+                        xkey: 'date',
+                        ykeys: ['sickMembersCount'],
+                        labels: ['sickMembersCount'],
+                        xLabels: 'day', // This will ensure that x-axis labels are shown for each day
+                        fillOpacity: 0.6,
+                        hideHover: 'auto',
+                        behaveLikeLine: true,
+                        resize: true,
+                        pointFillColors: ['#ffffff'],
+                        pointStrokeColors: ['#f62d51', '#7460ee', '#009efb'],
+                        lineColors: ['gray', 'red'],
+                        gridLineColor: ['#009efb', '#7460ee', '#009efb'],
+                        lineWidth: 1,
+                        hoverCallback: function (index, options, content, row) {
+                            // Format the tooltip content as desired
+                            var dateStr = moment(row.date).format('DD/MM/YYYY');
+                            return '<div class="morris-hover-row-label">' + dateStr + '</div>' +
+                                '<div class="morris-hover-point" style="color: white;">Covid19 Sick Members: ' + row.sickMembersCount + '</div>';
+                        }
+                    };
+
+                    config.element = 'line-chart';
+                    Morris.Line(config);
+                },
+                error() {
+                    // Handle errors here
+                },
+            });
+        });
+    </script>
+    <script>
+        window.addEventListener("load", function (event) {
+            const datePicker = new flatpickr('#date-picker1', {
+                mode: "range",
+                onValueUpdate(selectedDates, dateStr, instance) {
+                    // Remove the existing graph if it exists
+                    const existingGraph = document.getElementById('line-chart');
+                    if (existingGraph) {
+                        existingGraph.remove();
+                    }
+
+                    // Create a new div element for the graph
+                    const newGraphDiv = document.createElement('div');
+                    newGraphDiv.id = 'line-chart';
+                    newGraphDiv.style.height = '350px';
+
+                    // Append the new graph container to the card body
+                    const cardBody = document.querySelector('.card-body');
+                    cardBody.appendChild(newGraphDiv);
+
+                    // Convert JavaScript date objects to strings in a format that C# can parse
+                    const startDate = selectedDates[0];
+                    const endDate = selectedDates[1];
+                    const formattedStartDate = moment(startDate).format('YYYY-MM-DDTHH:mm:ss');
+                    const formattedEndDate = moment(endDate).format('YYYY-MM-DDTHH:mm:ss');
+
+                    // Send the dates to the server using AJAX
+                    $.ajax({
+                        url: `/Dashboard/GetDataForDateRange?startDate=${formattedStartDate}&endDate=${formattedEndDate}`,
+                        type: 'GET',
+                        success(data) {
+
+                            var config = {
+                                data: data,
+                                xkey: 'date',
+                                ykeys: ['sickMembersCount'],
+                                labels: ['sickMembersCount'],
+                                xLabels: 'day', // This will ensure that x-axis labels are shown for each day
+                                fillOpacity: 0.6,
+                                hideHover: 'auto',
+                                behaveLikeLine: true,
+                                resize: true,
+                                pointFillColors: ['#ffffff'],
+                                pointStrokeColors: ['#f62d51', '#7460ee', '#009efb'],
+                                lineColors: ['gray', 'red'],
+                                gridLineColor: ['#009efb', '#7460ee', '#009efb'],
+                                lineWidth: 1,
+                                hoverCallback: function (index, options, content, row) {
+                                    // Format the tooltip content as desired
+                                    var dateStr = moment(row.date).format('DD/MM/YYYY');
+                                    return '<div class="morris-hover-row-label">' + dateStr + '</div>' +
+                                        '<div class="morris-hover-point" style="color: white;">Covid19 Sick Members: ' + row.sickMembersCount + '</div>';
+                                }
+                            };
+
+                            config.element = 'line-chart';
+                            Morris.Line(config);
+                        },
+                        error() {
+                            // Handle errors here
+                        },
+                    });
+                },
+            });
+        });
+    </script>
+}

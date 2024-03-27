@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="MemberId" class="control-label"></label>
@@ -58,6 +58,18 @@
                 <span asp-validation-for="MobilePhone" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label class="control-label">Do you want to upload a profile picture?</label>
+                <select class="form-control" id="wantsProfilePicture">
+                    <option value="false" selected>No</option>
+                    <option value="true">Yes</option>
+                </select>
+                <span class="text-danger"></span>
+            </div>
+            <div class="form-group" id="imageUploadInput" style="display: none;">
+                <label>Upload Image</label>
+                <input type="file" class="form-control" name="ImageFile" />
+            </div>
+            <div class="form-group">
                 <label  class="control-label">Did the member have COVID-19?</label>
                 <select  class="form-control" id="hadCovid19">
                     <option value="false" selected>No</option>
@@ -94,6 +106,13 @@
     }
     <script>
         $(document).ready(function () {
+            $('#wantsProfilePicture').change(function () {
+                if ($(this).val() === "true") {
+                    $('#imageUploadInput').show();
+                } else {
+                    $('#imageUploadInput').hide();
+                }
+            });
             $('#hadCovid19').change(function () {
                 if ($(this).val() === "true") {
                     $('#covid19Dates').show();

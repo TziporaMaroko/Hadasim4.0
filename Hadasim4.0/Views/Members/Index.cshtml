@@ -13,6 +13,9 @@
     <thead>
         <tr>
             <th>
+                Profile Picture
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.MemberId)
             </th>
             <th>
@@ -51,6 +54,18 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+                <div class="profile-picture">
+                    @if (item.ImageURL!= null)
+                    {
+                        <img src="@Url.Content("~/images/" + item.ImageURL)" class="profile-image" />
+                    }
+                    else
+                    {
+					    <img src="~/images/default_profile_picture.jpg" class="profile-image" />
+                    }        
+                </div>
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.MemberId)
             </td>
@@ -93,3 +108,18 @@
 }
     </tbody>
 </table>
+
+
+<style>
+    .profile-picture {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    .profile-image {
+        width: 100%;
+        height: auto;
+    }
+</style>

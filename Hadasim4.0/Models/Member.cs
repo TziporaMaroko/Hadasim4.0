@@ -20,4 +20,5 @@ public class Member
 
     [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
     public DateTime? RecoveryDate { get; set; }
+    public string? ImageURL { get; set; }
 }

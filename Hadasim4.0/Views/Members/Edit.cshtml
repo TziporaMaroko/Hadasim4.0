@@ -3,6 +3,20 @@
 @{
     ViewData["Title"] = "Edit";
 }
+<style>
+    .profile-picture {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    .profile-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+</style>
 
 <h1>Edit</h1>
 
@@ -11,8 +25,48 @@
     <div class="col-md-6">
         <h4>Member Details</h4>
         <hr />
-        <form asp-action="Edit">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <!-- Profile Picture -->
+            <div>
+                @if (Model.ImageURL != null)
+                {
+                    <div class="profile-picture">
+                        <img src="@Url.Content("~/images/" + Model.ImageURL)" class="profile-image" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Do you want to change profile picture?</label>
+                        <select class="form-control" id="wantsProfilePicture1">
+                            <option value="false" selected>No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                        <span class="text-danger"></span>
+                    </div>
+                    <div class="form-group" id="imageUploadInput1" style="display: none;">
+                        <label>Upload Image</label>
+                        <input type="file" class="form-control" name="ImageFile" />
+                    </div>
+                }
+                else
+                {
+                    <div class="profile-picture">
+                        <img src="~/images/default_profile_picture.jpg" class="profile-image" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Do you want to upload a profile picture?</label>
+                        <select class="form-control" id="wantsProfilePicture2">
+                            <option value="false" selected>No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                        <span class="text-danger"></span>
+                    </div>
+                    <div class="form-group" id="imageUploadInput2" style="display: none;">
+                        <label>Upload Image</label>
+                        <input type="file" class="form-control" name="ImageFile" />
+                    </div>
+                }
+            </div>
+            
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="FirstName" class="control-label"></label>
@@ -140,44 +194,29 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-         <script>
+@section Scripts {@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
         $(document).ready(function () {
-            refreshVaccinationsTable()
-            // Fetch member vaccinations and populate table
-            function refreshVaccinationsTable() {
-                var memberId = @Model?.MemberId;
-                $.ajax({
-                    type: "GET",
-                    url: "/Members/GetMemberVaccinations?memberId=" + memberId,
-                    success: function (data) {
-                        if (data.length > 0) {
-                            // Clear the table body
-                            $("#memberVaccinationDetails").empty();
+            $('#wantsProfilePicture1').change(function () {
+                if ($(this).val() === "true") {
+                    $('#imageUploadInput1').show();
+                } else {
+                    $('#imageUploadInput1').hide();
+                }
+            });
 
-                            $.each(data, function (index, item) {
-                                // Format the date
-                                var formattedDate = new Date(item.date).toLocaleDateString('en-GB');
-                                $("#memberVaccinationDetails").append("<tr><td>" + item.vaccinationId + "</td><td>" + item.producer + "</td><td>" + formattedDate + "</td></tr>");
-                            });
-                            $("#vacTable").show();
-                            $("#memberVaccinationDetails").show();
-                            $("#noVaccinationsMessage").hide();
-                        } else {
-                            // Hide the table if there are no vaccinations
-                            $("#vacTable").hide();
-                            $("#memberVaccinationDetails").hide();
-                            // Show the message
-                            $("#noVaccinationsMessage").show();
-                        }
-                    },
-                    error: function (response) {
-                        // Alert any error messages
-                        alert("Failed to fetch member vaccinations: " + response.responseText);
-                    }
-                });
-            }
+            $('#wantsProfilePicture2').change(function () {
+                if ($(this).val() === "true") {
+                    $('#imageUploadInput2').show();
+                } else {
+                    $('#imageUploadInput2').hide();
+                }
+            });
+
+            // Call the refreshVaccinationsTable function
+            refreshVaccinationsTable();
+
+            // Rest of your JavaScript code...
 
             $('#hadCovid19').change(function () {
                 if ($(this).val() === "true") {
@@ -192,7 +231,7 @@
                 // Fetch vaccination data from the server
                 $.ajax({
                     type: "GET",
-                    url: "/Vaccinations/GetVaccinations", 
+                    url: "/Vaccinations/GetVaccinations",
                     success: function (data) {
                         // Clear previous options
                         $("#vaccinationId").empty();
@@ -237,9 +276,43 @@
                         alert(response.responseText);
                     }
                 });
-            });   
+            });
 
+            // Fetch member vaccinations and populate table
+            function refreshVaccinationsTable() {
+                var memberId = @Model?.MemberId;
+                $.ajax({
+                    type: "GET",
+                    url: "/Members/GetMemberVaccinations?memberId=" + memberId,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            // Clear the table body
+                            $("#memberVaccinationDetails").empty();
+
+                            $.each(data, function (index, item) {
+                                // Format the date
+                                var formattedDate = new Date(item.date).toLocaleDateString('en-GB');
+                                $("#memberVaccinationDetails").append("<tr><td>" + item.vaccinationId + "</td><td>" + item.producer + "</td><td>" + formattedDate + "</td></tr>");
+                            });
+                            $("#vacTable").show();
+                            $("#memberVaccinationDetails").show();
+                            $("#noVaccinationsMessage").hide();
+                        } else {
+                            // Hide the table if there are no vaccinations
+                            $("#vacTable").hide();
+                            $("#memberVaccinationDetails").hide();
+                            // Show the message
+                            $("#noVaccinationsMessage").show();
+                        }
+                    },
+                    error: function (response) {
+                        // Alert any error messages
+                        alert("Failed to fetch member vaccinations: " + response.responseText);
+                    }
+                });
+            }
         });
+
     </script>
 }
 

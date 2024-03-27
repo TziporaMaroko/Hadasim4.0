@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using Hadasim4._0.Data;
 using Hadasim4._0.Models;
 using Hadasim4._0.Migrations;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Hadasim4._0.Controllers
 {
     public class MembersController : Controller
     {
         private readonly Hadasim4_0Context _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public MembersController(Hadasim4_0Context context)
+        public MembersController(Hadasim4_0Context context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Members
@@ -55,8 +58,26 @@ namespace Hadasim4._0.Controllers
         // POST: Members/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,MemberId,FirstName,LastName,City,Street,HouseNumber,BirthDate,PhoneNumber,MobilePhone,PositiveDate,RecoveryDate")] Member member)
+        public async Task<IActionResult> Create([Bind("Id,MemberId,FirstName,LastName,City,Street,HouseNumber,BirthDate,PhoneNumber,MobilePhone,PositiveDate,RecoveryDate")] Member member, IFormFile ImageFile)
         {
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                // Handle the case where the user uploads an image from the file explorer
+                // Generate a unique filename for the image
+                string uniqueFileName = $"{Guid.NewGuid().ToString()}_{DateTime.Now.Ticks}{Path.GetExtension(ImageFile.FileName)}";
+
+                // Define the path where you want to save the image inside the wwwroot / images folder
+                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", uniqueFileName);
+
+                using (var fileStream = new FileStream(imagePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(fileStream);
+                }
+
+                // Update the Image_URL property with the new path (relative to wwwroot)
+                member.ImageURL = $"{uniqueFileName}";
+            }
+            
             if (ModelState.IsValid)
             {
                 _context.Add(member);
@@ -85,13 +106,29 @@ namespace Hadasim4._0.Controllers
         // POST: Members/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,MemberId,FirstName,LastName,City,Street,HouseNumber,BirthDate,PhoneNumber,MobilePhone,PositiveDate,RecoveryDate")] Member member)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,MemberId,FirstName,LastName,City,Street,HouseNumber,BirthDate,PhoneNumber,MobilePhone,PositiveDate,RecoveryDate")] Member member, IFormFile ImageFile)
         {
             if (id != member.Id)
             {
                 return NotFound();
             }
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                // Handle the case where the user uploads an image from the file explorer
+                // Generate a unique filename for the image
+                string uniqueFileName = $"{Guid.NewGuid().ToString()}_{DateTime.Now.Ticks}{Path.GetExtension(ImageFile.FileName)}";
 
+                // Define the path where you want to save the image inside the wwwroot / images folder
+                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", uniqueFileName);
+
+                using (var fileStream = new FileStream(imagePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(fileStream);
+                }
+
+                // Update the Image_URL property with the new path (relative to wwwroot)
+                member.ImageURL = $"{uniqueFileName}";
+            }
             try
             {
                 var original = await _context.Member.FindAsync(id);
@@ -114,6 +151,7 @@ namespace Hadasim4._0.Controllers
                 original.MobilePhone = member.MobilePhone;
                 original.PositiveDate = member.PositiveDate;
                 original.RecoveryDate = member.RecoveryDate;
+                original.ImageURL= member.ImageURL;
 
                 if (ModelState.IsValid)
                 {
@@ -170,10 +208,6 @@ namespace Hadasim4._0.Controllers
                 return NotFound();
             }
             try {
-                //var memberVaccinationRelations = await _context.MemberVaccinationRelation.Where(mvr => mvr.MemberId == member.MemberId).ToListAsync();
-                //_context.MemberVaccinationRelation.RemoveRange(memberVaccinationRelations);
-                //await _context.SaveChangesAsync();
-                
                 _context.Member.Remove(member);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
