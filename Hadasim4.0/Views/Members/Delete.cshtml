@@ -90,18 +90,25 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.MobilePhone)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PositiveDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PositiveDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RecoveryDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RecoveryDate)
-        </dd>
+        @if (Model.PositiveDate == null)
+        {
+            <p>The member did not have covid-19</p>
+        }
+        else
+        {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.PositiveDate)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.PositiveDate)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.RecoveryDate)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.RecoveryDate)
+            </dd>
+        }
     </dl>
     
     <form asp-action="Delete">

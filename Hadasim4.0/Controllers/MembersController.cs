@@ -66,7 +66,7 @@ namespace Hadasim4._0.Controllers
                 // Generate a unique filename for the image
                 string uniqueFileName = $"{Guid.NewGuid().ToString()}_{DateTime.Now.Ticks}{Path.GetExtension(ImageFile.FileName)}";
 
-                // Define the path where you want to save the image inside the wwwroot / images folder
+                // Define the path where you want to save the image inside the wwwroot/images folder
                 var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", uniqueFileName);
 
                 using (var fileStream = new FileStream(imagePath, FileMode.Create))
@@ -118,7 +118,7 @@ namespace Hadasim4._0.Controllers
                 // Generate a unique filename for the image
                 string uniqueFileName = $"{Guid.NewGuid().ToString()}_{DateTime.Now.Ticks}{Path.GetExtension(ImageFile.FileName)}";
 
-                // Define the path where you want to save the image inside the wwwroot / images folder
+                // Define the path where you want to save the image inside the wwwroot/images folder
                 var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", uniqueFileName);
 
                 using (var fileStream = new FileStream(imagePath, FileMode.Create))
@@ -231,7 +231,7 @@ namespace Hadasim4._0.Controllers
 
             if (member == null)
             {
-                return NotFound(); // Handle if member is not found
+                return NotFound(); //if member is not found
             }
 
             // Check if member already has four vaccinations
@@ -258,8 +258,8 @@ namespace Hadasim4._0.Controllers
         {
             try { 
                 var memberVaccinations = await _context.MemberVaccinationRelation
-                                            .Where(mvr => mvr.MemberId == memberId)
-                                            .Join(_context.Vaccination,
+                                            .Where(mvr => mvr.MemberId == memberId) //Gets all the member's vaccination ids
+                                            .Join(_context.Vaccination, //For each vaccination, join to find it's producer
                                                   mvr => mvr.VaccinationId,
                                                   v => v.Id,
                                                   (mvr, v) => new { MemberId = mvr.MemberId, VaccinationId = mvr.VaccinationId, Producer = v.Producer, Date = mvr.Date })
@@ -268,7 +268,6 @@ namespace Hadasim4._0.Controllers
             }
             catch (Exception ex)
             {
-                // Handle any errors and return an error response if needed
                 return BadRequest(ex.Message);
             }
         }

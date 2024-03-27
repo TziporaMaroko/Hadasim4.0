@@ -19,7 +19,6 @@ namespace Hadasim4._0.Controllers
         {
             ViewBag.nonVaccinatedMembers = await _context.Member
                                                     .CountAsync(m => !_context.MemberVaccinationRelation.Any(mvr => mvr.MemberId == m.MemberId));
-            //ViewBag.sickMembersCountJson = GetDataForDateRange(DateTime.Now.AddDays(-30).Date, DateTime.Now.Date);
             return _context.Member != null ?
                         View(await _context.Member.ToListAsync()) :
                         Problem("Entity set 'Hadasim4_0Context.Member'  is null.");
@@ -51,15 +50,31 @@ namespace Hadasim4._0.Controllers
                     })
                     .OrderBy(g => g.date)
                     .ToList();
-                var a = Json(sickMembersPerDay);
-                return a;
+
+                // Generate a list of all dates within the specified range
+                var allDatesInRange = Enumerable.Range(0, 1 + endDate.Subtract(startDate).Days)
+                    .Select(offset => startDate.AddDays(offset));
+
+                // Create JSON object with sick members count for each date
+                var jsonData = allDatesInRange.Select(date =>
+                {
+                    var sickMembers = sickMembersPerDay.FirstOrDefault(s => s.date == date.Date);
+                    return new
+                    {
+                        date = date.Date,
+                        sickMembersCount = sickMembers != null ? sickMembers.sickMembersCount : 0
+                    };
+                }).ToList();
+
+                return Json(jsonData);
             }
             catch (Exception ex)
             {
-                // Handle any errors and return an error response if needed
                 return BadRequest(ex.Message);
             }
         }
+
+
 
         // Helper method to calculate sick days for a patient
         private IEnumerable<DateTime> GetSickDays(Member patient, DateTime startDate, DateTime endDate)
