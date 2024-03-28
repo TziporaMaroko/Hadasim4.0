@@ -1,8 +1,8 @@
-# Hadasim4.0
-# Overview
+# Hadasim4.0- Ex1
+## Overview
 This project is a web application developed to manage member data within a Health Maintenance Organization (HMO), with a particular emphasis on tracking COVID-19 cases and vaccination status. It provides a comprehensive dashboard for monitoring COVID-19 related statistics, including the number of infected members, vaccination rates, and trends over time.
 
-# Screenshots
+## Screenshots
 <img src="https://github.com/TziporaMaroko/Hadasim4.0/assets/116155777/ddc329a2-47c5-4ce9-b4cb-16c21e461fff" alt="צילום מסך 2024-03-28 004939" width="500">
 <img src="https://github.com/TziporaMaroko/Hadasim4.0/assets/116155777/61a51cd3-f055-4839-992f-2d776c8e941c" alt="צילום מסך 2024-03-28 010311" width="500">
 <img src="https://github.com/TziporaMaroko/Hadasim4.0/assets/116155777/981e4cc1-1951-4397-9aeb-bac502c81733" alt="צילום מסך 2024-03-28 005013" width="500">
@@ -11,7 +11,7 @@ This project is a web application developed to manage member data within a Healt
 <img src="https://github.com/TziporaMaroko/Hadasim4.0/assets/116155777/f051e0e9-dfe4-43be-8cc7-73b750174d49" alt="צילום מסך 2024-03-28 005151" width="500">
 <img src="https://github.com/TziporaMaroko/Hadasim4.0/assets/116155777/ff55d66e-6c51-4739-ba33-eae9f854c124" alt="צילום מסך 2024-03-28 005210" width="500">
 
-# Usage
+## Usage
 To utilize this application effectively, follow these steps:
 
 1. **Installation**:
@@ -37,3 +37,7 @@ This project relies on several external libraries and services:
 - **Morris.js**: A library for drawing visually appealing charts based on Raphael.js.
 
 Ensure these dependencies are included in your project either through CDN links or installed via package managers like npm or yarn.
+
+# Hadasim4.0- Ex2, Ex3
+The answer to exercise 2 is in a python file named Hadasim4.0-Ex2,
+and the answer to exercise 3 is in a docx file named Hadasim4.0-Ex3.
