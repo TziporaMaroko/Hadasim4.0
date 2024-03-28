@@ -40,4 +40,4 @@ Ensure these dependencies are included in your project either through CDN links 
 
 # Hadasim4.0- Ex2, Ex3
 The answer to exercise 2 is in a python file named Hadasim4.0-Ex2,
-and the answer to exercise 3 is in a docx file named Hadasim4.0-Ex3.
+and the answer to exercise 3 is in a pdf file named Hadasim4.0-Ex3.
