@@ -80,7 +80,7 @@
     <script>
         $(document).ready(function () {
          
-            $.ajax({
+            $.ajax({// Gets the default data for the graph- the last month statistics
                 url: `/Dashboard/GetDataForDateRange?startDate=${moment().subtract(30, 'days').format('YYYY-MM-DDTHH:mm:ss')}&endDate=${moment().format('YYYY-MM-DDTHH:mm:ss')}`,
                 type: 'GET',
                 success(data) {
@@ -90,7 +90,7 @@
                         xkey: 'date',
                         ykeys: ['sickMembersCount'],
                         labels: ['sickMembersCount'],
-                        xLabels: 'day', // This will ensure that x-axis labels are shown for each day
+                        xLabels: 'day', 
                         fillOpacity: 0.6,
                         hideHover: 'auto',
                         behaveLikeLine: true,
@@ -110,9 +110,6 @@
 
                     config.element = 'line-chart';
                     Morris.Line(config);
-                },
-                error() {
-                    // Handle errors here
                 },
             });
         });
@@ -154,7 +151,7 @@
                                 xkey: 'date',
                                 ykeys: ['sickMembersCount'],
                                 labels: ['sickMembersCount'],
-                                xLabels: 'day', // This will ensure that x-axis labels are shown for each day
+                                xLabels: 'day', 
                                 fillOpacity: 0.6,
                                 hideHover: 'auto',
                                 behaveLikeLine: true,
@@ -174,9 +171,6 @@
 
                             config.element = 'line-chart';
                             Morris.Line(config);
-                        },
-                        error() {
-                            // Handle errors here
                         },
                     });
                 },
